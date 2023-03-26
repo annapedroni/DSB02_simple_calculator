@@ -3,6 +3,7 @@ This is a simple calculator: the user can enter two numbers and the operator, an
 Alternatively, they can enter a text file containing the desired input. They might not get a solution, but the program will not crash :P
 '''
 
+import os # needed to find the test files
 
 # get the user input
 intro_message = """\nHello!
@@ -40,15 +41,17 @@ while use_file:
         print("Not a file with a .txt extension")
     else:
         try:
-            with open(file_to_open, 'r') as file:
-                print(file.read())
+            here = os.path.dirname(os.path.abspath(__file__))  # from: https://stackoverflow.com/questions/21957131/python-not-finding-file-in-the-same-directory
+            filename = os.path.join(here, file_to_open)        # because the location from where the script is running can be different from the one he is saved.. I'm still trying to understand
+            
+            with open(filename, 'r') as file:
                 operation_lines = file.readlines()
                 if operation_lines == []:
-                    print("The file is empty.")
+                    print(f"The file {file_to_open} is empty.")
                     continue
                 else:
                     break
-        except FileNotFoundError:
+        except FileNotFoundError:        
             print(f"The file {file_to_open} does not exist.")
             # if no file, ask if go on manually or quit
             choose_again = input("\nWhat would you like to do?\nEnter data manually: m\nQuit: q\nTry another file.txt: any input :)\n> ")
@@ -66,9 +69,43 @@ while use_file:
 
 # input entered through a file
 while use_file:
+    # for loop through lines that check the input and do the calculation (and report a line with an invalid operation)
     for line in operation_lines:
-        print(line)
-# for loop through lines that check the input and do the calculation (and report a line with an invalid operation)
+        operation_terms = line.split()
+        
+        if len(operation_terms) != 3:
+            print(f"{line} is not a valid input")
+        else:
+            try:
+                first_operand = float(operation_terms[0])
+                operator = operation_terms[1]
+                second_operand = float(operation_terms[2])
+                
+                if operator == "+":
+                    result = first_operand + second_operand
+                elif operator == "-":
+                    result = first_operand - second_operand
+                elif operator == "x" or operator == "*":
+                    result = first_operand * second_operand
+                elif operator == "/":
+                    try:
+                        result = round(first_operand / second_operand, 4)
+                    except ZeroDivisionError:
+                        result = "ERROR: the divisor cannot be 0"
+                elif operator == "^" or operator == "**":
+                    operator = "to the power of"
+                    try:
+                        result = first_operand ** second_operand
+                    except OverflowError:
+                        result = "SORRY, the result is too large"
+                    # output the result
+                result_message = f"{first_operand} {operator} {second_operand} = {result}\n"
+                print(result_message)        
+            except:
+                print(f"{line} is not a valid input")
+
+    break
+
 
 
 
