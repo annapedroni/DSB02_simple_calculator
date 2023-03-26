@@ -2,8 +2,17 @@
 This is a simple calculator: the user can enter two numbers and the operator, and they will get the result.
 Alternatively, they can enter a text file containing the desired input. They might not get a solution, but the program will not crash :P
 '''
+'''
+NB: A lot of repetition, because I tried to solve this without lists, that had not been used yet in the course.
+Another option could have been to make the manually entered input into a file, and then have only one block to perform the math,
+but I did not want to have problems with writing permission.
+Also, functions could simplify all. Not there yet :)
+'''
+
 
 import os # needed to find the test files
+          # from: https://stackoverflow.com/questions/21957131/python-not-finding-file-in-the-same-directory
+
 
 # get the user input
 intro_message = """\nHello!
@@ -71,45 +80,58 @@ while use_file:
 while use_file:
     # for loop through lines that check the input and do the calculation (and report a line with an invalid operation)
     for line in operation_lines:
-        operation_terms = line.split()
-        
-        if len(operation_terms) != 3:
+        # check if there are three terms in the line
+        operation_terms = line.strip()
+        first_whitespace = operation_terms.find(" ")
+        if first_whitespace == -1:
             print(f"{line} is not a valid input")
+            
         else:
-            try:
-                first_operand = float(operation_terms[0])
-                operator = operation_terms[1]
-                second_operand = float(operation_terms[2])
+            first_operand = operation_terms[:first_whitespace]
+            operator_second_operand = operation_terms[first_whitespace:].strip()
+            second_whitespace = operator_second_operand.find(" ")
+            # and not more than three items
+            if second_whitespace == -1 or operator_second_operand[second_whitespace+1:].strip().find(" ") != -1:
+                print(f"{line} is not a valid input\n")
                 
-                if operator == "+":
-                    result = first_operand + second_operand
-                elif operator == "-":
-                    result = first_operand - second_operand
-                elif operator == "x" or operator == "*":
-                    result = first_operand * second_operand
-                elif operator == "/":
-                    try:
-                        result = round(first_operand / second_operand, 4)
-                    except ZeroDivisionError:
-                        result = "ERROR: the divisor cannot be 0"
-                elif operator == "^" or operator == "**":
-                    operator = "to the power of"
-                    try:
-                        result = first_operand ** second_operand
-                    except OverflowError:
-                        result = "SORRY, the result is too large"
-                    # output the result
-                result_message = f"{first_operand} {operator} {second_operand} = {result}\n"
-                print(result_message)        
-            except:
-                print(f"{line} is not a valid input")
+            else:
+                operator = operator_second_operand[:second_whitespace]
+                second_operand = operator_second_operand[second_whitespace:].strip()
+                # if I have exactly three terms, try to perform the operation
+                try:
+                    first_operand = float(first_operand)
+                    operator = operator # useless, but just to have a little order
+                    second_operand = float(second_operand)
+                
+                    if operator == "+":
+                        result = first_operand + second_operand
+                    elif operator == "-":
+                        result = first_operand - second_operand
+                    elif operator == "x" or operator == "*":
+                        result = first_operand * second_operand
+                    elif operator == "/":
+                        try:
+                            result = round(first_operand / second_operand, 4)
+                        except ZeroDivisionError:
+                            result = "ERROR: the divisor cannot be 0"
+                    elif operator == "^" or operator == "**":
+                        operator = "to the power of"
+                        try:
+                            result = first_operand ** second_operand
+                        except OverflowError:
+                            result = "SORRY, the result is too large"
+                        # output the result
+                    result_message = f"{first_operand} {operator} {second_operand} = {result}\n"
+                    print(result_message)        
+                except:
+                    print("{} is not a valid input\n".format(line))
 
     break
 
 
 
 
-# input entered manually
+# check the input entered manually
 while enter_manually:
     first_operand = input("Please, enter the first operand: ")
     if first_operand.strip() == "q":
@@ -151,7 +173,7 @@ while enter_manually:
 
 
 
-# execute the requested operation
+# execute the requested operation on the input entered manually
 
 #quit
 if enter_manually == False and use_file == False: # no 'Goodbye!' if enter_manually is false because the user wants to use a file for input (use_file == True)
