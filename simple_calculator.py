@@ -1,11 +1,12 @@
 '''
-This is a simple calculator: the user can enter two numbers and the operator, and they will get the result.
-Alternatively, they can enter a text file containing the desired input. They might not get a solution, but the program will not crash :P
+This is a simple calculator: the user can enter two numbers and the operator,
+and they will get the result on the screen and in a file called 'equation_and_solution.txt'.
+
+Alternatively, they can enter a text file containing the desired input, the solution will be printed on the screen.
+They might not get a solution, but the program will not crash :P
 '''
 '''
 NB: A lot of repetition, because I tried to solve this without lists, that had not been used yet in the course.
-Another option could have been to make the manually entered input into a file, and then have only one block to perform the math,
-but I did not want to have problems with writing permission.
 Also, functions could simplify all. Not there yet :)
 '''
 
@@ -198,8 +199,10 @@ elif enter_manually == True:
             result = first_operand ** second_operand
         except OverflowError:
             result = "SORRY, the result is too large"
-    # output the result
-    result_message = f"\n{first_operand} {operator} {second_operand} = {result}\n"
+    # output the result and save it to a file (create it if it does not exists, append to it otherwise)
+    print()
+    result_message = f"{first_operand} {operator} {second_operand} = {result}"
     print(result_message)
-
-
+    print("(find it also in the 'equation_and_solution.txt' file)\n")
+    with open("equation_and_solution.txt", "a") as solution:             # https://stackoverflow.com/questions/1466000/difference-between-modes-a-a-w-w-and-r-in-built-in-open-function
+        solution.write(f"{result_message}\n\n")
